@@ -2,7 +2,7 @@
   "name": "Daily Tracker",
   "short_name": "Tracker",
   "description": "Трекер ежедневных задач — блоки-заметки на доске",
-  "start_url": "./________.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
