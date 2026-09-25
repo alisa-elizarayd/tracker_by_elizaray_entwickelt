@@ -41,10 +41,8 @@ self.addEventListener('fetch', (event) => {
         return response;
       });
     }).catch(() => {
-      if (event.request.mode === 'navigate') {
-        return caches.match('./tracker_busy.html');
-      }
-      return Response.error();
-    })
-  );
+       if (event.request.mode === 'navigate') {
+    return caches.match('./index.html');
+  }
+  return Response.error();
 });
