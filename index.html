@@ -505,7 +505,52 @@
         function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(getBoardData())); }
         function loadFromLocal() { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); data.forEach(item => createWidget(item.type, item)); } catch (error) { showToast('Could not load saved notes'); } }
         function exportBoard() { const blob = new Blob([JSON.stringify(getBoardData(), null, 2)], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'daily-tracker-board.json'; link.click(); URL.revokeObjectURL(link.href); }
-        function importBoard(file) { const reader = new FileReader(); reader.onload = () => { try { document.querySelectorAll('.widget').forEach(widget => widget.remove()); JSON.parse(reader.result).forEach(item => createWidget(item.type, item)); saveToLocal(); } catch (error) { showToast('Invalid tracker file'); } }; reader.readAsText(file); }
+        function importBoard(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      let data = JSON.parse(e.target.result);
+      
+      // ── Поддержка обоих форматов ──
+      // Старый формат: массив верхнего уровня [ {...}, {...} ]
+      // Новый формат: { version, timestamp, widgets: [...] }
+      let widgets;
+      if (Array.isArray(data)) {
+        widgets = data;                     // ← старый формат
+      } else if (data && Array.isArray(data.widgets)) {
+        widgets = data.widgets;             // ← новый формат
+      } else {
+        throw new Error('Неверный формат');
+      }
+
+      if (widgets.length === 0) {
+        showToast('Файл пуст');
+        event.target.value = '';
+        return;
+      }
+
+      const count = widgets.length;
+      if (confirm(`Загружено ${count} блоков. Заменить текущую доску?`)) {
+        // Очищаем доску
+        document.querySelectorAll('.widget').forEach(el => el.remove());
+        highestZIndex = 10;
+        // Создаём все блоки
+        widgets.forEach(w => createWidget(w.type, w));
+        // Сохраняем в localStorage уже в новом формате
+        saveToLocal();
+        showToast(`📥 Импортировано ${count} блоков`);
+      }
+    } catch (err) {
+      showToast('❌ Ошибка: неверный файл');
+      console.error('Import error:', err);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
         addBtn.addEventListener('click', toggleFabMenu);
         overlay.addEventListener('click', toggleFabMenu);
         optSquare.addEventListener('click', () => createWidget('square'));
