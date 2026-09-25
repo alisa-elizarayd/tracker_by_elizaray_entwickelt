@@ -504,7 +504,19 @@
         function getBoardData() { return [...document.querySelectorAll('.widget')].map(widget => ({ type: widget.classList.contains('type-paperclip') ? 'paperclip' : 'square', x: parseFloat(widget.style.left), y: parseFloat(widget.style.top), width: widget.offsetWidth, height: widget.offsetHeight, html: widget.querySelector('.widget-content').innerHTML, color: widget.querySelector('.color-picker').value, mode: widget.dataset.mode, userFontMultiplier: parseFloat(widget.dataset.userFontMultiplier) || 1, done: widget.classList.contains('done') })); }
         function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(getBoardData())); }
         function loadFromLocal() { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); data.forEach(item => createWidget(item.type, item)); } catch (error) { showToast('Could not load saved notes'); } }
-        function exportBoard() { const blob = new Blob([JSON.stringify(getBoardData(), null, 2)], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'daily-tracker-board.json'; link.click(); URL.revokeObjectURL(link.href); }
+        function exportBoard() {
+    const payload = {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+        widgets: getBoardData()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'daily-tracker-board.json';
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
         function importBoard(event) {
   const file = event.target.files[0];
   if (!file) return;
