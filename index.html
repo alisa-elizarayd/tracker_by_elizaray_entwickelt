@@ -557,7 +557,10 @@
         optPaperclip.addEventListener('click', () => createWidget('paperclip'));
         document.getElementById('export-btn').addEventListener('click', exportBoard);
         document.getElementById('import-btn').addEventListener('click', () => document.getElementById('file-input').click());
-        document.getElementById('file-input').addEventListener('change', (e) => { if (e.target.files[0]) importBoard(e.target.files[0]); e.target.value = ''; });
+        document.getElementById('file-input').addEventListener('change', (e) => {
+    if (e.target.files[0]) importBoard(e);
+    e.target.value = '';
+});
         document.getElementById('clear-btn').addEventListener('click', () => { if (confirm('Очистить доску?')) { document.querySelectorAll('.widget').forEach(widget => widget.remove()); saveToLocal(); } });
         document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.widget') && !e.target.closest('#fab-container') && !e.target.closest('.io-controls')) document.querySelectorAll('.widget').forEach(widget => widget.classList.remove('active')); });
         if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw-tracker_cracker.js').catch(() => {}));
